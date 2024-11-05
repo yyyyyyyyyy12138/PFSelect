@@ -67,7 +67,7 @@ knockoff_data <- generate_knockoff_data(snp_data)
 ```
 
 **Arguments:**
-- `snp_data`: Data frame containing SNP data where rows represent individuals (samples). This data frame can contain additional columns (such as demographic information or other covariates), but only columns with names starting with chr will be extracted and used in knockoff generation. Ensure that SNP columns are named with chromosome positions in the format chr:position.
+- `snp_data`: Data frame containing SNP data where rows represent individuals (samples). This data frame can contain additional columns (such as demographic information or other covariates), but only columns with names starting with "chr" will be extracted and used in knockoff generation. Ensure that SNP columns are named with chromosome positions in the format "chr:position...".
 
 
 #### `plot_pcs`
