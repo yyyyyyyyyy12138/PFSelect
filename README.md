@@ -22,7 +22,7 @@ After installation, load the package with:
 library(LassoKnockoff)
 ```
 
-### Functions Overview
+### Main Functions Overview
 
 #### `get_importance_matrices`
 
@@ -67,9 +67,10 @@ knockoff_data <- generate_knockoff_data(snp_data)
 ```
 
 **Arguments:**
-- `snp_data`: Data frame containing SNP data where rows represent individuals (samples). This data frame can contain additional columns (such as demographic information or other covariates), but only columns with names starting with "chr" will be extracted and used in knockoff generation. Ensure that SNP columns are named with chromosome positions in the format "chr:position...".
+- `snp_data`: Data frame containing SNP data where rows represent individuals (samples). This data frame can contain additional columns (such as demographic information or other covariates), but only columns with names starting with "chr" will be extracted and used in knockoff generation. Ensure that SNP columns are named with chromosome positions in the format "chrXX.position...".
 
 
+### Optional Functions Overview
 #### `plot_pcs`
 
 This function creates a scatter plot of two specified principal components (PCs) colored by SNP feature importance.
