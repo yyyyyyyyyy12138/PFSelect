@@ -43,11 +43,11 @@ results <- get_importance_matrices(
 ```
 
 **Arguments:**
-- `genetic_variants`: Matrix of original genetic variants (SNPs), with dimensions \(n×p\) where \(n\) represents the number of samples (individuals), and \(p\) represents the number of SNPs.
-- `genetic_variants_knockoff`: Matrix of knockoff genetic variants,  structured identically to genetic_variants with dimensions \(n×p\), where each column is a knockoff version of the corresponding SNP in genetic_variants.
-- `unpenalized_covariates`: Matrix of covariates (not penalized in the Lasso model), with dimensions \(n×c\), where \(c\) represents the number of covariates
-- `Z`: Heterogeneity variable (e.g., EUR or PCs),  dimensions \(n×d\), where \(d\) is the number of heterogeneity variables
-- `y`: Outcome variable, a vector of length \(n\), representing the response variable (e.g., disease status) for each individual.
+- `genetic_variants`: Matrix of original genetic variants (SNPs), with dimensions \( n \times p \) where \( n \) represents the number of samples (individuals), and \( p \) represents the number of SNPs.
+- `genetic_variants_knockoff`: Matrix of knockoff genetic variants,  structured identically to genetic_variants with dimensions \( n \times p \), where each column is a knockoff version of the corresponding SNP in genetic_variants.
+- `unpenalized_covariates`: Matrix of covariates (not penalized in the Lasso model), with dimensions \( n \times c \), where \( c \) represents the number of covariates
+- `Z`: Heterogeneity variable (e.g., EUR or PCs),  dimensions \( n \times d \), where \( d \) is the number of heterogeneity variables
+- `y`: Outcome variable, a vector of length \( n \), representing the response variable (e.g., disease status) for each individual.
 - `n_folds`: Number of folds for cross-validation.
 - `FDR_rate`: False discovery rate threshold for feature selection.
 
