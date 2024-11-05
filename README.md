@@ -78,7 +78,7 @@ This function creates a scatter plot of two specified principal components (PCs)
 **Usage:**
 
 ```r
-plot_pcs(pcs = pcs, snp_importance = results$scaled_selection_matrix[, snp_index], snp_name = "chr19.APOE.rs429358", pc_x = 1, pc_y = 2, save_path = "plots")
+plot_pcs(pcs = pcs, snp_importance = results$scaled_selection_matrix[, snp_name], snp_name = "chr19.APOE.rs429358", pc_x = 1, pc_y = 2, save_path = "plots")
 ```
 
 **Arguments:**
