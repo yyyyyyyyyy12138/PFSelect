@@ -81,7 +81,7 @@ This function creates a scatter plot of two specified principal components (PCs)
 snp_name <- "chr19.APOE.rs429358"
 snp_index <- which(colnames(genetic_variants) == snp_name)
 snp_importance <- results$scaled_selection_matrix[, snp_index]
-plot_pcs(pcs = pcs, snp_importance = snp_importance, snp_name = snp_name, pc_x = 1, pc_y = 2, save_path = "plots")
+plot_pcs(pcs = pcs, snp_importance = snp_importance, snp_name = snp_name, pc_x = "PC1", pc_y = "PC2", save_path = "plots")
 ```
 
 **Arguments:**
