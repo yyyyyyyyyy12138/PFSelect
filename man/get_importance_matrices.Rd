@@ -7,7 +7,7 @@
 get_importance_matrices(
   genetic_variants,
   genetic_variants_knockoff,
-  unpenalized_covariates,
+  additional_covariates,
   Z,
   y,
   n_folds = 5,
@@ -19,8 +19,6 @@ get_importance_matrices(
 
 \item{genetic_variants_knockoff}{Matrix of knockoff genetic variants.}
 
-\item{unpenalized_covariates}{Matrix of covariates (not penalized).}
-
 \item{Z}{Vector or matrix representing heterogeneity variable(s) (e.g., EUR or PCs).}
 
 \item{y}{Outcome.}
@@ -28,6 +26,8 @@ get_importance_matrices(
 \item{n_folds}{Number of fold cross validation with default of 5.}
 
 \item{FDR_rate}{False Discovery Rate threshold, default is 0.1.}
+
+\item{unpenalized_covariates}{Matrix of covariates (not penalized).}
 }
 \value{
 A list containing \code{scaled_selection_matrix}, \code{selection_matrix}, and \code{W_statistic_matrix}.

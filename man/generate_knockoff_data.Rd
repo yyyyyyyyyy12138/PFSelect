@@ -4,7 +4,7 @@
 \alias{generate_knockoff_data}
 \title{Generate Knockoff Data for SNPs}
 \usage{
-generate_knockoff_data(snp_data)
+generate_knockoff_data(genetic_variants)
 }
 \arguments{
 \item{snp_data}{Data frame containing SNP and covariate data.}

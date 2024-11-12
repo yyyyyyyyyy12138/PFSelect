@@ -4,7 +4,13 @@
 \alias{plot_heatmap}
 \title{Plot Heatmap of Selected SNPs Including Knockoff}
 \usage{
-plot_heatmap(scaled_selection_matrix, selected_snp_names, eur, save_path = ".")
+plot_heatmap(
+  scaled_selection_matrix,
+  genetic_variants,
+  selected_snp_names,
+  eur,
+  save_path = "."
+)
 }
 \arguments{
 \item{scaled_selection_matrix}{Scaled selection matrix from the knockoff filter.}

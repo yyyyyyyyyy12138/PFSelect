@@ -5,12 +5,9 @@
 #' @param snp_data Data frame containing SNP and covariate data.
 #' @return Knockoff genotype matrix with the same dimensions as the original genotype matrix.
 #' @export
-generate_knockoff_data <- function(snp_data) {
+generate_knockoff_data <- function(genetic_variants) {
   # Extract only the SNP columns (those that start with "chr") to create the genotype matrix
-  genotype_columns <- grep("^chr", colnames(snp_data))
-  G <- as.matrix(snp_data[, genotype_columns])
-  sample_ids <- snp_data$IID
-  rownames(G) <- sample_ids
+  G <- as.matrix(genetic_variants)
   
   # Basic operations for knockoff preparation
   sd.G <- apply(G, 2, sd)
@@ -34,9 +31,6 @@ generate_knockoff_data <- function(snp_data) {
   temp.G_k1.M <- t(rep(sd.G, M) * t(scale.G_k1.M) + rep(mu.G, M))
   G_k <- as.matrix(temp.G_k1.M)  # Knockoff matrix
 
-  # G_k <- data.frame(G_k)
-  colnames(G_k) <- colnames(G)
-  rownames(G_k) <- rownames(G)
   print(paste("Genotype knockoff dimensions:", dim(G_k)[1], "samples x", dim(G_k)[2], "SNPs"))
 
   return(G_k)
@@ -292,7 +286,13 @@ knockoff_filter <- function(local_feature_importance, local_feature_importance_k
 #' @param FDR_rate False Discovery Rate threshold, default is 0.1.
 #' @return A list containing `scaled_selection_matrix`, `selection_matrix`, and `W_statistic_matrix`.
 #' @export
-get_importance_matrices <- function(genetic_variants, genetic_variants_knockoff, unpenalized_covariates, Z, y, n_folds=5, FDR_rate = 0.1) {
+get_importance_matrices <- function(genetic_variants, genetic_variants_knockoff, additional_covariates, Z, y, n_folds=5, FDR_rate = 0.1) {
+  # Conditionally create unpenalized_covariates based on whether Z is same as additional_covariates
+  if (identical(Z, additional_covariates)) {
+    unpenalized_covariates <- additional_covariates # e.g., pcs
+  } else {
+    unpenalized_covariates <- cbind(additional_covariates, Z) # e.g., pcs + eur
+  }
   # Prepare interaction terms
   interaction_terms <- prepare_interaction_terms(genetic_variants, Z)
   interaction_terms_knockoff <- prepare_interaction_terms(genetic_variants_knockoff, Z)
@@ -313,12 +313,6 @@ get_importance_matrices <- function(genetic_variants, genetic_variants_knockoff,
   
   # Apply knockoff filter to get matrices
   matrices <- knockoff_filter(feature_importances$local_feature_importance, feature_importances$local_feature_importance_knockoff, FDR_rate)
-  
-
-  colnames(matrices$scaled_selection_matrix) <- colnames(genetic_variants)
-  colnames(matrices$S_ij) <- colnames(genetic_variants)
-  colnames(matrices$W) <- colnames(genetic_variants)
-
 
   return(list(
     scaled_selection_matrix = matrices$scaled_selection_matrix,
@@ -374,7 +368,8 @@ plot_pcs <- function(pcs, snp_importance, snp_name, pc_x = "PC1", pc_y = "PC2", 
 #' @param save_path The directory path where the plot will be saved. Defaults to the current working directory.
 #' @return A ggplot object representing the heatmap.
 #' @export
-plot_heatmap <- function(scaled_selection_matrix, selected_snp_names, eur, save_path = ".") {
+plot_heatmap <- function(scaled_selection_matrix, genetic_variants, selected_snp_names, eur, save_path = ".") {
+  colnames(scaled_selection_matrix) <- colnames(genetic_variants)
   # Filter the scaled_selection_matrix to keep only the selected variants (SNPs)
   valid_snp_names <- intersect(colnames(scaled_selection_matrix), selected_snp_names)
   print(paste("Number of valid SNP names:", length(valid_snp_names)))
