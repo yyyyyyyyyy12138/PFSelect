@@ -34,8 +34,8 @@ This main function performs the core analysis by calculating the importance matr
 results <- get_importance_matrices(
   genetic_variants = genetic_variants,
   genetic_variants_knockoff = genetic_variants_knockoff,
-  unpenalized_covariates = cbind(pcs, eur),
-  Z = eur,  
+  additional_covariates = pcs,
+  Z = eur, 
   y = y,
   n_folds = 5,  
   FDR_rate = 0.1  
@@ -45,7 +45,7 @@ results <- get_importance_matrices(
 **Arguments:**
 - `genetic_variants`: Matrix of original genetic variants (SNPs), with dimensions n x p where n represents the number of samples (individuals), and p represents the number of SNPs.
 - `genetic_variants_knockoff`: Matrix of knockoff genetic variants,  structured identically to genetic_variants with dimensions n x p, where each column is a knockoff version of the corresponding SNP in genetic_variants.
-- `unpenalized_covariates`: Matrix of covariates (not penalized in the Lasso model), with dimensions n x c, where c represents the number of covariates
+- `additional_covariates`: Matrix of additional covariates, with dimensions n x c, where c represents the number of covariates, usually it is PCs
 - `Z`: Heterogeneity variable (e.g., EUR or PCs),  dimensions n x d, where d is the number of heterogeneity variables
 - `y`: Outcome variable, a vector of length n, representing the response variable (e.g., disease status) for each individual.
 - `n_folds`: Number of folds for cross-validation.
@@ -63,11 +63,11 @@ This function generates knockoff variables for the given genetic variant matrix.
 **Usage:**
 
 ```r
-knockoff_data <- generate_knockoff_data(snp_data)
+knockoff_matrix <- generate_knockoff_data(genetic_variants_matrix)
 ```
 
 **Arguments:**
-- `snp_data`: Data frame containing SNP data where rows represent individuals (samples). This data frame can contain additional columns (such as demographic information or other covariates), but only columns with names starting with "chr" will be extracted and used in knockoff generation. Ensure that SNP columns are named with chromosome positions in the format "chrXX.position...".
+- `genetic_variants_matrix`: Matrix containing SNP data where rows represent individuals (samples) ane columns represent genetic variants.
 
 
 ### Optional Functions Overview
@@ -78,7 +78,10 @@ This function creates a scatter plot of two specified principal components (PCs)
 **Usage:**
 
 ```r
-plot_pcs(pcs = pcs, snp_importance = results$scaled_selection_matrix[, snp_name], snp_name = "chr19.APOE.rs429358", pc_x = 1, pc_y = 2, save_path = "plots")
+snp_name <- "chr19.APOE.rs429358"
+snp_index <- which(colnames(genetic_variants) == snp_name)
+snp_importance <- results$scaled_selection_matrix[, snp_index]
+plot_pcs(pcs = pcs, snp_importance = snp_importance, snp_name = snp_name, pc_x = 1, pc_y = 2, save_path = "plots")
 ```
 
 **Arguments:**
@@ -95,13 +98,14 @@ This function creates a heatmap of selected SNPs based on the scaled selection m
 **Usage:**
 
 ```r
-plot_heatmap(scaled_selection_matrix = results$scaled_selection_matrix, selected_snp_names = selected_snp_names, eur = eur, save_path = "plots")
+plot_heatmap(scaled_selection_matrix = results$scaled_selection_matrix, genetic_variants = genetic_variants, selected_snp_names = selected_snp_names, sorting_vector = eur, save_path = "plots")
 ```
 
 **Arguments:**
 - `scaled_selection_matrix`: Matrix from `get_importance_matrices` with scaled selection values.
+- `genetic_variants`: Matrix of original genetic variants (SNPs), with column names to match with selected SNP names.
 - `selected_snp_names`: Names of selected SNPs to include in the heatmap.
-- `eur`: Vector of EUR values for sorting individuals.
+- `sorting_vector`: Vector of values for sorting individuals, e.g., eur.
 - `save_path`: Directory to save the heatmap.
 
 ## Example
@@ -109,36 +113,38 @@ plot_heatmap(scaled_selection_matrix = results$scaled_selection_matrix, selected
 Below is an example of using `LassoKnockoff` to analyze SNP data and visualize results:
 
 ```r
-# Load SNP and knockoff data
+# Load SNP
 snp_filepath <- "snp_data.csv"
 snp_data <- read.csv(snp_filepath)
 
-# Generate knockoff data
-knockoff_data <- generate_knockoff_data(snp_data)
-
-# Extract relevant columns
+# Extract genetic_variants matrix and generate knockoff data
 pcs <- snp_data[, c("PC1", "PC2", "PC3", "PC4")]
 eur <- snp_data$EUR
-genetic_variants <- snp_data[, grepl("chr", colnames(snp_data))]
-genetic_variants_knockoff <- knockoff_data[, grepl("chr", colnames(knockoff_data))]
 y <- snp_data$AD
+genetic_variants <- snp_data[, grepl("chr", colnames(snp_data))]  # Extract columns with "chr" in their names
+genetic_variants_knockoff <- generate_knockoff_data(genetic_variants)
 
 # Perform importance calculation
 results <- get_importance_matrices(
   genetic_variants = genetic_variants,
   genetic_variants_knockoff = genetic_variants_knockoff,
-  unpenalized_covariates = cbind(pcs, eur),
+  additional_covariates = pcs,
   Z = eur, # or other variables like 'pcs'
   y = y,
+  n_folds = 5,
   FDR_rate = 0.1
 )
 
 # Visualize PCs for a specific SNP
-plot_pcs(pcs, results$scaled_selection_matrix[, "chr19.APOE.rs429358"], "chr19.APOE.rs429358", pc_x = 1, pc_y = 2, save_path = "plots")
+snp_name <- "chr19.APOE.rs429358"
+save_directory <- "plots"  # Specify the desired directory
+snp_index <- which(colnames(genetic_variants) == snp_name)
+snp_importance <- results$scaled_selection_matrix[, snp_index]
+plot_pcs(pcs, snp_importance, snp_name, pc_x = "PC1", pc_y = "PC2", save_path = save_directory)
 
 # Generate heatmap of selected SNPs
 selected_snp_names <- colnames(results$selection_matrix)[apply(results$selection_matrix, 2, any)]
-plot_heatmap(results$scaled_selection_matrix, selected_snp_names, eur, save_path = "plots")
+plot_heatmap(results$scaled_selection_matrix, genetic_variants, selected_snp_names, eur, save_path = "plots")
 ```
 
 ## Authors and License
