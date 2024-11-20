@@ -287,11 +287,23 @@ knockoff_filter <- function(local_feature_importance, local_feature_importance_k
 #' @return A list containing `scaled_selection_matrix`, `selection_matrix`, and `W_statistic_matrix`.
 #' @export
 get_importance_matrices <- function(genetic_variants, genetic_variants_knockoff, additional_covariates, Z, y, n_folds=5, FDR_rate = 0.1) {
-  # Conditionally create unpenalized_covariates based on whether Z is same as additional_covariates
-  if (identical(Z, additional_covariates)) {
-    unpenalized_covariates <- additional_covariates # e.g., pcs
+  if (is.null(Z)) {
+    stop("The heterogeneity variable Z cannot be NULL. Please provide a valid input for Z.")
+  }
+  # Check for overlapping variables between additional_covariates and Z
+  if (!is.null(additional_covariates)) {
+    overlapping_vars <- intersect(colnames(as.data.frame(additional_covariates)), colnames(as.data.frame(Z)))
+    if (length(overlapping_vars) > 0) {
+      stop("Overlap detected between additional_covariates and Z: ", 
+           paste(overlapping_vars, collapse = ", "), 
+           ". Please redefine Z and additional_covariates to avoid overlapping variables.")
+    }
+  }
+
+  if (!is.null(additional_covariates)) {
+    unpenalized_covariates <- cbind(additional_covariates, Z)
   } else {
-    unpenalized_covariates <- cbind(additional_covariates, Z) # e.g., pcs + eur
+    unpenalized_covariates <- Z
   }
   # Prepare interaction terms
   interaction_terms <- prepare_interaction_terms(genetic_variants, Z)
