@@ -356,7 +356,7 @@ plot_pcs <- function(pcs, snp_importance, snp_name, pc_x = "PC1", pc_y = "PC2", 
     geom_point(size = 3, alpha = 0.7) +
     scale_color_gradient(low = "blue", high = "red") +
     labs(
-      title = paste("PCs Scaled Selected Feature Importance of", snp_name, "in", pc_x, "&", pc_y, "Space"),
+      title = paste("Scaled Selected Feature Importance of", snp_name, "in", pc_x, "&", pc_y, "Space"),
       x = pc_x,
       y = pc_y,
       color = "Importance"
@@ -400,7 +400,6 @@ plot_heatmap <- function(scaled_selection_matrix, genetic_variants, selected_snp
 
   # Extract column(s) values for sorting SNPs
   chromosome_order <- as.numeric(gsub("chr([0-9]+)\\..*", "\\1", valid_snp_names))
-  # bp_order <- as.numeric(gsub("chr[0-9]+\\.([0-9]+)\\..*", "\\1", valid_snp_names))
   
   snp_data <- data.frame(SNP = valid_snp_names, Chromosome = chromosome_order)
 
@@ -426,14 +425,14 @@ plot_heatmap <- function(scaled_selection_matrix, genetic_variants, selected_snp
     ) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
     ggplot2::labs(
-      title = "Heatmap of Selected SNPs for At Least One Person (Including Knockoff)",
+      title = "Heatmap of Selected SNPs (for At Least One Person)",
       x = "Genetic Variant (SNP)",
-      y = "Individual (Ranked by EUR)",
+      y = "Individual (Ranked by EUR%)",
       fill = "Importance"
     )
   
   # Save the plot
-  file_name <- file.path(save_path, "scaled_selected_feature_importance_heatmap_with_knockoff.png")
+  file_name <- file.path(save_path, "scaled_selected_feature_importance_heatmap.png")
   ggplot2::ggsave(file_name, plot = heatmap_plot, width = 30, height = 10)
   print(paste("Heatmap plot is saved as", file_name))
   
