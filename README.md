@@ -1,5 +1,5 @@
-# LassoKnockoff
-`LassoKnockoff` is an R package designed for modeling and analyzing genetic variants using the Lasso method combined with the knockoff filter. This package enables users to apply the knockoff filter to identify important genetic features (SNPs) associated with specific outcomes, such as Alzheimer's disease.
+# PFSelect
+`PFSelect` is an R package designed for modeling and analyzing genetic variants using the Lasso method combined with the knockoff filter. This package enables users to apply the knockoff filter to identify important genetic features (SNPs) associated with specific outcomes, such as Alzheimer's disease.
 
 ## Installation
 
@@ -8,8 +8,8 @@ To install from GitHub:
 # If devtools is not installed, first install it
 install.packages("devtools")
 
-# Then install LassoKnockoff from GitHub
-devtools::install_github("yyyyyyyyyy12138/LassoKnockoff")
+# Then install PFSelect from GitHub
+devtools::install_github("yyyyyyyyyy12138/PFSelect")
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ devtools::install_github("yyyyyyyyyy12138/LassoKnockoff")
 After installation, load the package with:
 
 ```r
-library(LassoKnockoff)
+library(PFSelect)
 ```
 
 ### Main Functions Overview
@@ -110,7 +110,7 @@ plot_heatmap(scaled_selection_matrix = results$scaled_selection_matrix, genetic_
 
 ## Example
 
-Below is an example of using `LassoKnockoff` to analyze SNP data and visualize results:
+Below is an example of using `PFSelect` to analyze SNP data and visualize results:
 
 ```r
 # Load SNP

@@ -1,9 +1,9 @@
-Package: LassoKnockoff
-Title: Lasso Knockoff Modeling Functions for SNP Analysis
+Package: PFSelect
+Title: Personalized Feature Selection for Genetic Studies
 Version: 0.0.0.9000
 Authors@R: 
     person("Rachel", "Yu", , "yuyue01@stanford.edu", role = c("aut", "cre"))
-Description: Functions for modeling and analyzing genetic variants using Lasso with knockoff filter.
+Description: Functions for modeling and analyzing genetic variants using Lasso-penalized quadratic regression.
 Depends: R (>= 3.5.0), glmnet, ggplot2, reshape2, corpcor, RColorBrewer, GhostKnockoff
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
