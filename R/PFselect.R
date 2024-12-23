@@ -178,21 +178,25 @@ calculate_feature_importance <- function(coefs, genetic_variants, genetic_varian
   print(paste("Length of gamma_knockoff:", length(gamma_knockoff)))
 
   # Compute local feature importance with defined heterogeneity Z
-  local_feature_importance <- matrix(0, nrow = nrow(genetic_variants), ncol = n_genetic_variants)
-  local_feature_importance_knockoff <- matrix(0, nrow = nrow(genetic_variants_knockoff), ncol = n_genetic_variants_knockoff)
+  local_feature_importance <- calculate_local_importance(beta, gamma, Z, genetic_variants)
+  local_feature_importance_knockoff <- calculate_local_importance(beta_knockoff, gamma_knockoff, Z, genetic_variants_knockoff)
 
-  for (i in 1:nrow(genetic_variants)) {
-    for (j in 1:n_genetic_variants) {
-      local_feature_importance[i, j] <- abs(beta[j] + sum(gamma[j, ] * Z[i, ]))
-      local_feature_importance_knockoff[i, j] <- abs(beta_knockoff[j] + sum(gamma_knockoff[j, ] * Z[i, ]))
-    }
-  }
 
   print(paste("Local feature importance dimensions:", dim(local_feature_importance)[1], "samples x", dim(local_feature_importance)[2], "SNPs"))
   print(paste("Local feature importance knockoff dimensions:", dim(local_feature_importance_knockoff)[1], "samples x", dim(local_feature_importance_knockoff)[2], "SNPs knockoff"))
 
   return(list(local_feature_importance = local_feature_importance,
               local_feature_importance_knockoff = local_feature_importance_knockoff))
+}
+
+# Compute local feature importance with matrix operations
+calculate_local_importance <- function(beta, gamma, Z, genetic_variants) {
+  # Matrix multiplication for the interaction term (gamma * Z^T)
+  interaction_effect <- gamma %*% t(Z)  # Result: n_genetic_variants x n_samples
+  # Add beta to the interaction effect (vectorized addition)
+  local_feature_importance <- abs(sweep(interaction_effect, 1, beta, "+"))  # Result: n_genetic_variants x n_samples
+  # Transpose back to match the original shape (samples x SNPs)
+  return(t(local_feature_importance))
 }
 
 
@@ -214,6 +218,7 @@ MK.statistic<-function (T_0,T_k,method='median'){
   }
   return(cbind(kappa,tau))
 }
+
 
 MK.q.byStat<-function (kappa,tau,M,Rej.Bound=10000){
   b<-order(tau,decreasing=T)
@@ -317,15 +322,27 @@ get_importance_matrices <- function(genetic_variants, genetic_variants_knockoff,
   
   # Fit Lasso model, using n-fold cross validation
   y_vector <- as.numeric(y)
-  cv_fit <- fit_lasso_model(X_matrix, y_vector, penalty_factors, n_folds)
+  cat("\n--- Fitting Lasso model...\n")
+  lasso_timing <- system.time({
+    cv_fit <- fit_lasso_model(X_matrix, y_vector, penalty_factors, n_folds)
+  })
+  cat("--- Time taken for Lasso model fitting:", lasso_timing[3], "seconds\n")
   
   # Extract coefficients and calculate feature importance
   coefs <- extract_coefficients(cv_fit)
-  feature_importances <- calculate_feature_importance(coefs, genetic_variants, genetic_variants_knockoff, interaction_terms, interaction_terms_knockoff, unpenalized_covariates, Z)
+  cat("\n--- Calculating feature importance...\n")
+  feature_timing <- system.time({
+    feature_importances <- calculate_feature_importance(coefs, genetic_variants, genetic_variants_knockoff, interaction_terms, interaction_terms_knockoff, unpenalized_covariates, Z)
+  })
+  cat("--- Time taken for feature importance calculation:", feature_timing[3], "seconds\n")
   
   # Apply knockoff filter to get matrices
-  matrices <- knockoff_filter(feature_importances$local_feature_importance, feature_importances$local_feature_importance_knockoff, FDR_rate)
-
+  cat("\n--- Applying knockoff filter...\n")
+  knockoff_timing <- system.time({
+    matrices <- knockoff_filter(feature_importances$local_feature_importance, feature_importances$local_feature_importance_knockoff, FDR_rate)
+  })
+  cat("--- Time taken for knockoff filter:", knockoff_timing[3], "seconds\n")
+  
   return(list(
     scaled_selection_matrix = matrices$scaled_selection_matrix,
     selection_matrix = matrices$S_ij,
